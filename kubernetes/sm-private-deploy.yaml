@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sm-private
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sm-private
+  template:
+    metadata:
+      labels:
+        app: sm-private
+    spec:
+      containers:
+      - name: sm-private
+        image: oydeu/sm-private:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: LANG
+            value: C.UTF-8
+          - name: RAILS_LOG_TO_STDOUT
+            value: "TRUE"
+          - name: RAILS_SERVE_STATIC_FILES
+            value: "TRUE"
+          - name: RAILS_ENV
+            value: production
+          - name: RAILS_CONFIG_HOSTS
+            value: "sm-private.data-container.net"
+          - name: AUTH
+            value: "idaustria:smpr"
+          - name: DC_DB
+            value: kubernetes
+          - name: DB2_HOST
+            value: postgres
+          - name: DB2_NAME
+            value: sm-private
+          - name: DB2_USER
+            value: postgres
+          - name: POSTGRES2_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: superUserPassword
+          - name: CONTAINER_NAME
+            value: "Site Manager - Private Data Store"
+          - name: DEFAULT_DID_OAUTH_APP
+            value: "oydid"
+          - name: DEFAULT_VC_OAUTH_APP
+            value: "oydid-vc"
+          - name: ISSUER_DID
+            value: "did:oyd:zQmYSydHP5A1nRuqMcAoxpb971mfJrKJxpGJPEsxc5mw5Wt"
+          - name: ISSUER_PWD
+            value: "issuer-doc"
+          - name: HOLDER_DID
+            value: "did:oyd:zQmZ83C6BAi5qYRwaAnofAud4ozubFjRhFiyTFe3bDNnARy"
+          - name: HOLDER_PWD
+            value: "smpwd"
+          - name: IDAUSTRIA_DID
+            value: "did:oyd:zQmQJB3mHeocYLaeydgS47u7Nr7SeiiY2xnJAVegaWrDGRT"
+          - name: IDAUSTRIA_DID_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ida-secrets
+                key: ida-did-secret
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: sm-private
+spec:
+  selector:
+    app: sm-private
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sm-private
+  annotations:
+    certmanager.io/issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: "nginx"
+  tls:
+  - hosts:
+    - sm-private.data-container.net
+    secretName: sm-private-tls
+  rules:
+  - host: sm-private.data-container.net
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: sm-private
+            port:
+              number: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sm-private-tls
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  secretName: sm-private-tls
+  issuerRef:
+    group: cert-manager.io
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - 'sm-private.data-container.net'

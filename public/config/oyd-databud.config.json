@@ -1,0 +1,49 @@
+{
+  "endpoint": {
+    "url": null,
+    "clientId": "dev.unterholzer.ownyourdata.databud.view",
+    "credentials": {
+      "appKey": null,
+      "appSecret": null
+    }
+  },
+  "settings": {
+    "additionalFormActions": {
+      "accept_vc": {
+        "method": "POST",
+        "usesAuth": false,
+        "title": "Accept VC",
+        "schemaDri": "ReceivedConcreteDeliveryVCs",
+        "url": "{{base_url}}/api/vc/accept/{{item_id}}"
+      },
+      "aggregate_BPzkp": {
+        "method": "POST",
+        "usesAuth": false,
+        "title": "Aggregate BuildingPart",
+        "schemaDri": "BuildingPartDefinition",
+        "url": "{{base_url}}/api/bp/aggregate/{{item_id}}"
+      },
+      "aggregate_BPzkp_dri": {
+        "method": "POST",
+        "usesAuth": false,
+        "title": "Aggregate BuildingPart",
+        "schemaDri": "zQmPZ2pjHjhuiwaxyCjwhCqDhBCjiAsmXDCDZrycgPgZsgt",
+        "url": "{{base_url}}/api/bp/aggregate/{{item_id}}"
+      },
+      "generate_DPP": {
+        "method": "POST",
+        "usesAuth": false,
+        "title": "Generate DPP",
+        "schemaDri": "BuildingPartDPP",
+        "url": "{{base_url}}/api/bp/generate/{{item_id}}"
+      },
+      "generate_DPP_dri": {
+        "method": "POST",
+        "usesAuth": false,
+        "title": "Generate DPP",
+        "schemaDri": "zQmS9E2nk9pkdTyfvUD5NNvgEwoeqbtKVXGZjuyZZ9FZc1y",
+        "url": "{{base_url}}/api/bp/generate/{{item_id}}"
+      }
+    }
+  }
+}
